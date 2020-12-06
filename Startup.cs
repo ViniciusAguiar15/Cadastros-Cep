@@ -2,12 +2,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Cadastro_de_CEPs.Database;
+using Cadastro_de_CEPs.Services;
+using Cadastro_de_CEPs.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
 
 namespace Cadastro_de_CEPs {
     public class Startup {
@@ -19,6 +24,15 @@ namespace Cadastro_de_CEPs {
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
+
+            services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddScoped<IEnderecoService, EnderecoService>();
+
+            services.AddSwaggerGen(c => {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cadastro de CEPs", Version = "v1" });
+            });
+
             services.AddControllersWithViews();
         }
 
@@ -27,6 +41,7 @@ namespace Cadastro_de_CEPs {
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             } else {
+
                 app.UseExceptionHandler("/Home/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
@@ -37,6 +52,13 @@ namespace Cadastro_de_CEPs {
             app.UseRouting();
 
             app.UseAuthorization();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(opt =>
+            {
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI V1");
+            });
 
             app.UseEndpoints(endpoints => {
                 endpoints.MapControllerRoute(

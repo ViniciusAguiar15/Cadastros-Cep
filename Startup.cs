@@ -1,13 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Cadastro_de_CEPs.Database;
 using Cadastro_de_CEPs.Services;
 using Cadastro_de_CEPs.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -25,14 +20,18 @@ namespace Cadastro_de_CEPs {
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services) {
 
+            //Conexão com o SQL Server
             services.AddDbContext<ApplicationDbContext>(option => option.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            //Serviço do endereço
             services.AddScoped<IEnderecoService, EnderecoService>();
 
+            //SWAGGER
             services.AddSwaggerGen(c => {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Cadastro de CEPs", Version = "v1" });
             });
 
+            //MVC padrão do C#
             services.AddControllersWithViews();
         }
 
@@ -53,11 +52,12 @@ namespace Cadastro_de_CEPs {
 
             app.UseAuthorization();
 
+            //SWAGGER
             app.UseSwagger();
 
             app.UseSwaggerUI(opt =>
             {
-                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoAPI V1");
+                opt.SwaggerEndpoint("/swagger/v1/swagger.json", "Cadastro de CEPs V1");
             });
 
             app.UseEndpoints(endpoints => {
